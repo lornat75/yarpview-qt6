@@ -11,9 +11,7 @@
 - [Update](#updates)
 - [Installation](#installation)
 - [Reproduce the results](#reproduce-the-paper-results)
-- [Run the code with custom data](#run-the-code-with-custom-data-optional)
 - [License](#license)
-- [Citing this paper](#citing-this-paper)
 
 ## Updates
 
