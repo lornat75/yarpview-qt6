@@ -1,0 +1,26 @@
+# Build artifacts
+/build/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.obj
+*.pdb
+*.ilk
+*.ninja
+*.user
+*.vcxproj*
+Makefile
+cmake_install.cmake
+install_manifest.txt
+Testing/
+
+# Qt generated
+*_autogen/
+*.qm
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
