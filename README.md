@@ -28,7 +28,7 @@ make
 
 ## License
 
-This software is released under the Apache 2.0 license.
+This software is released under the GPL 3.0 license or later. 
 
 ## Maintainer
 
