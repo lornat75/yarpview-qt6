@@ -33,4 +33,4 @@ target_link_libraries(yarpview-qt6
         Qt6::Gui
 )
 
-stall(TARGETS yarpview-qt6 RUNTIME DESTINATION bin)
+install(TARGETS yarpview-qt6 RUNTIME DESTINATION bin)
