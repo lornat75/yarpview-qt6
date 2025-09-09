@@ -30,17 +30,17 @@ void ImageReceiver::Port::onRead(yarp::sig::ImageOf<yarp::sig::PixelBgra> &img) 
     if (!owner || owner->frozen.load()) return;
 
     yarp::os::Stamp stamp;
-    this->getEnvelope(stamp);
+    getEnvelope(stamp);
 
-    // Wrap without copy then copy into Qt-owned image (QImage doesn't deep copy until detach).
-    QImage qimg(img.getRawImage(), img.width(), img.height(), img.getRowSize(), QImage::Format_RGBA8888);
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-    // PixelBgra -> QImage expects RGBA8888 little endian means BGRA memory order; convert.
-    QImage converted = qimg.rgbSwapped();
-    qimg = converted;
-#endif
-    ImageReceiver *target = owner;
+    // BGRA bytes from PixelBgra match QImage::Format_ARGB32 layout on little-endian.
+    QImage qimg(img.getRawImage(),
+                img.width(),
+                img.height(),
+                img.getRowSize(),
+                QImage::Format_ARGB32);
+
+    ImageReceiver* target = owner;
     QMetaObject::invokeMethod(owner, [target, qimg, stamp]() {
-        if (target) emit target->imageArrived(qimg.copy(), stamp); // ensure safe copy
+        if (target) emit target->imageArrived(qimg.copy(), stamp); // deep copy happens here
     }, Qt::QueuedConnection);
 }
