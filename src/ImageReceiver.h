@@ -23,12 +23,12 @@ signals:
     void imageArrived(const QImage &img, const yarp::os::Stamp &stamp);
 
 private:
-    class Port : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelBgra>> {
+    class ImagePort : public yarp::os::BufferedPort<yarp::sig::ImageOf<yarp::sig::PixelBgra>> {
     public:
         ImageReceiver *owner{nullptr};
         void onRead(yarp::sig::ImageOf<yarp::sig::PixelBgra> &img) override;
     };
 
-    Port port;
+    ImagePort port;
     std::atomic<bool> frozen{false};
 };
