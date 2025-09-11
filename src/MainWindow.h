@@ -39,6 +39,7 @@ private slots:
     void toggleAutoResize();
     void toggleDisplayPixelValue();
     void changeRefreshInterval();
+    void toggleKeepAbove(); // newly added
     
     // Help menu
     void showAbout();
@@ -75,6 +76,7 @@ private:
     QAction *actAutoResize{nullptr};
     QAction *actDisplayPixelValue{nullptr};
     QAction *actChangeRefresh{nullptr};
+    QAction *actKeepAbove{nullptr}; // new action
     
     // Image set saving state
     bool savingImageSet{false};

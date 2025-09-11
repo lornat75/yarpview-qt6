@@ -27,6 +27,12 @@ MainWindow::MainWindow(const YarpViewOptions &opt, QWidget *parent) : QMainWindo
         // Frameless window for pure image display; title bar removed
         setWindowFlag(Qt::FramelessWindowHint, true);
     }
+    // Ensure keep-above flag applied before initial show
+    if (options.keepAbove) {
+        Qt::WindowFlags f = windowFlags();
+        f |= Qt::WindowStaysOnTopHint;
+        setWindowFlags(f);
+    }
     openPorts();
     receiver.open(options.imgInputPortName, true);
     connect(&receiver, &ImageReceiver::imageArrived, this, &MainWindow::onImage);
@@ -177,6 +183,13 @@ void MainWindow::createMenus() {
     connect(actChangeRefresh, &QAction::triggered, this, &MainWindow::changeRefreshInterval);
     imageMenu->addAction(actChangeRefresh);
 
+    imageMenu->addSeparator();
+    actKeepAbove = new QAction("Keep Above", this);
+    actKeepAbove->setCheckable(true);
+    actKeepAbove->setChecked(options.keepAbove);
+    connect(actKeepAbove, &QAction::triggered, this, &MainWindow::toggleKeepAbove);
+    imageMenu->addAction(actKeepAbove);
+
     QMenu *helpMenu = menuBar()->addMenu("&Help");
     QAction *actAbout = new QAction("About", this);
     connect(actAbout, &QAction::triggered, this, &MainWindow::showAbout);
@@ -295,6 +308,29 @@ void MainWindow::toggleDisplayPixelValue() {
     bool vis = actDisplayPixelValue->isChecked();
     statusPixelValue->setVisible(vis);
     if (statusPixelPatch) statusPixelPatch->setVisible(vis);
+}
+void MainWindow::toggleKeepAbove() {
+    bool want = actKeepAbove->isChecked();
+    options.keepAbove = want;
+    QRect g = geometry();
+    Qt::WindowFlags f = windowFlags();
+    if (want) f |= Qt::WindowStaysOnTopHint; else f &= ~Qt::WindowStaysOnTopHint;
+    bool vis = isVisible();
+    setWindowFlags(f);
+    if (vis) {
+        show();
+        setGeometry(g);
+        if (options.hasX || options.hasY) {
+            int newX = options.hasX ? options.winX : g.x();
+            int newY = options.hasY ? options.winY : g.y();
+            move(newX,newY);
+        }
+        raise();
+        activateWindow();
+        // Schedule a couple of delayed raises (some WMs reorder shortly after flag change)
+        QTimer::singleShot(50, this, [this]{ if (options.keepAbove) { raise(); activateWindow(); } });
+        QTimer::singleShot(300, this, [this]{ if (options.keepAbove) { raise(); } });
+    }
 }
 // Ensure patch toggles with label
 // (placed after function definition for brevity)
