@@ -335,7 +335,7 @@ void MainWindow::toggleKeepAbove() {
 // Ensure patch toggles with label
 // (placed after function definition for brevity)
 void MainWindow::changeRefreshInterval() { bool ok=false; int v=QInputDialog::getInt(this,"Change Refresh Interval","Refresh period (ms):",options.refreshMs,1,10000,1,&ok); if (ok){ options.refreshMs=v; if (!options.synch && displayTimer) displayTimer->setInterval(v);} }
-void MainWindow::showAbout() { QMessageBox::about(this, "About yarpview-qt6-gpt5", "yarpview-qt6-gpt5\nQt6 Widgets YARP image viewer"); }
+void MainWindow::showAbout() { QMessageBox::about(this, "About yarpview-qt6", "yarpview-qt6\nQt6 Widgets YARP image viewer"); }
 
 void MainWindow::displayTick() {
     if (!hasBufferedImage) return;
