@@ -40,8 +40,8 @@ MainWindow::MainWindow(const YarpViewOptions &opt, QWidget *parent) : QMainWindo
 
 MainWindow::~MainWindow() {
     receiver.close();
-    leftClickPort.close();
-    rightClickPort.close();
+    if (options.leftClickEnabled) leftClickPort.close();
+    if (options.rightClickEnabled) rightClickPort.close();
 }
 
 void MainWindow::buildUi() {
@@ -160,8 +160,12 @@ void MainWindow::createMenus() {
 }
 
 void MainWindow::openPorts() {
-    if (!leftClickPort.open(options.leftClickOutPortName)) yError() << "Cannot open left click output port" << options.leftClickOutPortName;
-    if (!rightClickPort.open(options.rightClickOutPortName)) yError() << "Cannot open right click output port" << options.rightClickOutPortName;
+    if (options.leftClickEnabled) {
+        if (!leftClickPort.open(options.leftClickOutPortName)) yError() << "Cannot open left click output port" << options.leftClickOutPortName;
+    }
+    if (options.rightClickEnabled) {
+        if (!rightClickPort.open(options.rightClickOutPortName)) yError() << "Cannot open right click output port" << options.rightClickOutPortName;
+    }
 }
 
 void MainWindow::onImage(const QImage &img, const yarp::os::Stamp &stamp) {
@@ -184,9 +188,11 @@ void MainWindow::onImage(const QImage &img, const yarp::os::Stamp &stamp) {
 }
 
 void MainWindow::onLeftClick(int x,int y) {
+    if (!options.leftClickEnabled) return;
     auto &b = leftClickPort.prepare(); b.clear(); b.addInt32(x); b.addInt32(y); leftClickPort.write();
 }
 void MainWindow::onRightClick(int x,int y) {
+    if (!options.rightClickEnabled) return;
     auto &b = rightClickPort.prepare(); b.clear(); b.addInt32(x); b.addInt32(y); rightClickPort.write();
 }
 

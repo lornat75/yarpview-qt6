@@ -6,9 +6,11 @@
 
 struct YarpViewOptions {
     QString windowTitle;
-    std::string imgInputPortName; // default /yarpview-gpt5/img:i
-    std::string leftClickOutPortName; // default /yarpview-gpt5/o:point
-    std::string rightClickOutPortName; // default /yarpview-gpt5/r:o:point
+    std::string imgInputPortName;      // image input port name (defaults to --name value)
+    std::string leftClickOutPortName;  // <basename>/left:click when --leftClick flag present
+    std::string rightClickOutPortName; // <basename>/right:click when --rightClick flag present
+    bool leftClickEnabled = false;     // true if --leftClick flag supplied
+    bool rightClickEnabled = false;    // true if --rightClick flag supplied
     bool autosize = false;
     bool synch = false; // synchronous display
     bool freeze = false;

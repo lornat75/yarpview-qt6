@@ -5,8 +5,8 @@
 
 void OptionsParser::fillResourceFinderDefaults(yarp::os::ResourceFinder &rf) {
     rf.setVerbose(false);
-    rf.setDefaultConfigFile("yarpview-gpt5.ini");
-    rf.setDefaultContext("yarpview-gpt5");
+    rf.setDefaultConfigFile("yarpview-qt6.ini");
+    rf.setDefaultContext("yarpview-qt6");
 }
 
 YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceFinder &rf) {
@@ -15,12 +15,20 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
 
     YarpViewOptions opt;
 
-    opt.windowTitle = rf.check("title", yarp::os::Value("yarpview-qt6-gpt5")).asString().c_str();
-    
-    std::string baseName = rf.check("name", yarp::os::Value("/yarpview-gpt5")).asString();
-    opt.imgInputPortName = baseName; //+ "/img:i";
-    opt.leftClickOutPortName = rf.check("out", yarp::os::Value(baseName + "/o:point")).asString();
-    opt.rightClickOutPortName = rf.check("rightout", yarp::os::Value(baseName + "/r:o:point")).asString();
+    opt.windowTitle = rf.check("title", yarp::os::Value("yarpview-qt6")).asString().c_str();
+
+    std::string baseName = rf.check("name", yarp::os::Value("/yarpview-qt6")).asString();
+    opt.imgInputPortName = baseName; // image input port (user supplies full name)
+
+    // Optional click output ports: flags only. When flag present, construct default port name.
+    if (rf.check("leftClick")) {
+        opt.leftClickEnabled = true;
+        opt.leftClickOutPortName = baseName + "/left:click";
+    }
+    if (rf.check("rightClick")) {
+        opt.rightClickEnabled = true;
+        opt.rightClickOutPortName = baseName + "/right:click";
+    }
 
     opt.autosize = rf.check("autosize");
     opt.synch = rf.check("synch");
@@ -42,14 +50,14 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
 }
 
 void OptionsParser::printHelp() {
-    std::cout << "yarpview-qt6-gpt5 options:\n"
-              << "  --name <basename>           Base name (default /yarpview-gpt5)\n"
+    std::cout << "yarpview-qt6 options:\n"
+              << "  --name <basename>           Base name (default /yarpview-qt6)\n"
               << "  --title <title>             Window title\n"
               << "  --p <ms> / --refresh <ms>   Refresh period ms (default 30)\n"
               << "  --autosize                  Auto-resize to incoming image\n"
               << "  --synch                     Synchronous display (no timer)\n"
-              << "  --out <portname>            Left click output port\n"
-              << "  --rightout <portname>       Right click output port\n"
+              << "  --leftClick                 Enable left-click output port (<basename>/left:click)\n"
+              << "  --rightClick                Enable right-click output port (<basename>/right:click)\n"
               << "  --compact                   Compact UI mode\n"
               << "  --minimal                   Minimal UI mode\n"
               << "  --keep-above                Keep window above others\n"

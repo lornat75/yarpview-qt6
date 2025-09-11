@@ -55,8 +55,8 @@ private:
     ImageReceiver receiver;
     ImageWidget *imageWidget{nullptr};
 
-    yarp::os::BufferedPort<yarp::os::Bottle> leftClickPort;
-    yarp::os::BufferedPort<yarp::os::Bottle> rightClickPort;
+    yarp::os::BufferedPort<yarp::os::Bottle> leftClickPort;  // opened only if options.leftClickEnabled
+    yarp::os::BufferedPort<yarp::os::Bottle> rightClickPort; // opened only if options.rightClickEnabled
 
     QLabel *statusPortName{nullptr};
     QLabel *statusPort{nullptr};
