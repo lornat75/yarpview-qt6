@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QKeyEvent>
 #include <deque>
 #include <yarp/os/BufferedPort.h>
 #include <yarp/os/Bottle.h>
@@ -95,4 +96,5 @@ private:
     bool aspectResizeGuard{false};
 protected:
     void resizeEvent(QResizeEvent *e) override;
+    void keyPressEvent(QKeyEvent *e) override;
 };

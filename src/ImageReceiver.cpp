@@ -32,6 +32,7 @@ void ImageReceiver::ImagePort::onRead(yarp::sig::ImageOf<yarp::sig::PixelBgra> &
     yarp::os::Stamp stamp;
     getEnvelope(stamp);
 
+    // PixelBgra (BGRA bytes) matches QImage::Format_ARGB32 in-memory layout on little-endian.
     QImage qimg(img.getRawImage(),
                 img.width(),
                 img.height(),
@@ -40,6 +41,6 @@ void ImageReceiver::ImagePort::onRead(yarp::sig::ImageOf<yarp::sig::PixelBgra> &
 
     ImageReceiver* target = owner;
     QMetaObject::invokeMethod(owner, [target, qimg, stamp]() {
-        if (target) emit target->imageArrived(qimg.copy(), stamp);
+        if (target) emit target->imageArrived(qimg.copy(), stamp); // deep copy happens here
     }, Qt::QueuedConnection);
 }

@@ -16,6 +16,15 @@
 MainWindow::MainWindow(const YarpViewOptions &opt, QWidget *parent) : QMainWindow(parent), options(opt) {
     buildUi();
     createMenus();
+    // Apply compact/minimal modes (after menus created so actions exist for logic)
+    if (options.compact || options.minimal) {
+        if (menuBar()) menuBar()->hide();
+        if (statusBar()) statusBar()->hide();
+    }
+    if (options.minimal) {
+        // Frameless window for pure image display; title bar removed
+        setWindowFlag(Qt::FramelessWindowHint, true);
+    }
     openPorts();
     receiver.open(options.imgInputPortName, true);
     connect(&receiver, &ImageReceiver::imageArrived, this, &MainWindow::onImage);
@@ -289,4 +298,12 @@ void MainWindow::resizeEvent(QResizeEvent *e){
         }
     }
     if (currentMode!=DisplayMode::OriginalSize) imageWidget->update(); 
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *e) {
+    if (options.minimal && e->key()==Qt::Key_Escape) {
+        close();
+        return;
+    }
+    QMainWindow::keyPressEvent(e);
 }
