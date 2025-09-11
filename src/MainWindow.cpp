@@ -10,6 +10,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QResizeEvent>
+#include <QGuiApplication>
+#include <QTimer>
 #include <yarp/os/Network.h>
 #include <yarp/os/LogStream.h>
 
@@ -34,7 +36,29 @@ MainWindow::MainWindow(const YarpViewOptions &opt, QWidget *parent) : QMainWindo
         connect(displayTimer, &QTimer::timeout, this, &MainWindow::displayTick);
         displayTimer->start();
     }
-    if (!options.explicitGeometry) setClientImageSize(320,240);
+    // Apply requested geometry components (each flag independent)
+    {
+        // Start from current geometry / size hint
+        QRect g = geometry();
+        int defaultW = imageWidget ? imageWidget->sizeHint().width() : 320;
+        int defaultH = imageWidget ? imageWidget->sizeHint().height() : 240;
+        int x = options.hasX ? options.winX : g.x();
+        int y = options.hasY ? options.winY : g.y();
+        int w = options.hasW ? options.winW : (g.width() > 0 ? g.width() : defaultW);
+        int h = options.hasH ? options.winH : (g.height() > 0 ? g.height() : defaultH);
+        // Ensure positive dimensions
+        if (w <= 0) w = defaultW;
+        if (h <= 0) h = defaultH;
+        // Only set if any geometry option present, otherwise fallback to default client size
+        if (options.hasX || options.hasY || options.hasW || options.hasH) {
+            setGeometry(x,y,w,h);
+        } else {
+                // Only apply default client size if neither width nor height was specified
+                if (!(options.hasW || options.hasH)) {
+                    setClientImageSize(320,240);
+                }
+        }
+    }
     portTimer.start();
 }
 
@@ -106,7 +130,7 @@ void MainWindow::buildUi() {
         if (h>0) statusPixelPatch->setFixedSize(h,h);
     });
     if (options.keepAbove) setWindowFlag(Qt::WindowStaysOnTopHint, true);
-    if (options.explicitGeometry) setGeometry(options.winX, options.winY, options.winW, options.winH);
+    // Geometry now applied in constructor block with independent flags
 }
 
 void MainWindow::createMenus() {
@@ -312,4 +336,35 @@ void MainWindow::keyPressEvent(QKeyEvent *e) {
         return;
     }
     QMainWindow::keyPressEvent(e);
+}
+
+void MainWindow::showEvent(QShowEvent *e) {
+    QMainWindow::showEvent(e);
+    if (!initialPosApplied && (options.hasX || options.hasY)) {
+        QPoint current = pos();
+        int newX = options.hasX ? options.winX : current.x();
+        int newY = options.hasY ? options.winY : current.y();
+        auto applyPos = [this,newX,newY]{
+            if (!(options.hasX || options.hasY)) return;
+            move(newX,newY);
+        };
+        // Immediate + several delayed retries (handles some Wayland/X11 race conditions)
+        applyPos();
+        const int delays[] = {0, 30, 120, 300};
+        for (int d: delays) {
+            QTimer::singleShot(d, this, applyPos);
+        }
+        // Final check & warn once if not honored
+        QTimer::singleShot(350, this, [this,newX,newY]{
+            if (pos().x()!=newX || pos().y()!=newY) {
+                static bool warned=false; if (!warned) {
+                    warned=true;
+                    yWarning() << "Window manager did not honor --x/--y (platform: "
+                               << QGuiApplication::platformName().toStdString()
+                               << ")";
+                }
+            }
+        });
+        initialPosApplied = true;
+    }
 }

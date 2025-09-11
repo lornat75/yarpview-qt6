@@ -40,11 +40,11 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
     if (rf.check("p")) opt.refreshMs = rf.find("p").asInt32();
     if (rf.check("refresh")) opt.refreshMs = rf.find("refresh").asInt32();
 
-    if (rf.check("x")) opt.winX = rf.find("x").asInt32();
-    if (rf.check("y")) opt.winY = rf.find("y").asInt32();
-    if (rf.check("w")) opt.winW = rf.find("w").asInt32();
-    if (rf.check("h")) opt.winH = rf.find("h").asInt32();
-    opt.explicitGeometry = (opt.winW>0 && opt.winH>0);
+    if (rf.check("x")) { opt.winX = rf.find("x").asInt32(); opt.hasX = true; }
+    if (rf.check("y")) { opt.winY = rf.find("y").asInt32(); opt.hasY = true; }
+    if (rf.check("w")) { opt.winW = rf.find("w").asInt32(); opt.hasW = true; }
+    if (rf.check("h")) { opt.winH = rf.find("h").asInt32(); opt.hasH = true; }
+    opt.explicitGeometry = (opt.hasW && opt.hasH);
 
     return opt;
 }
@@ -63,6 +63,6 @@ void OptionsParser::printHelp() {
               << "  --keep-above                Keep window above others\n"
               << "  --saveoptions               Save options file on exit\n"
               << "  --x <px> --y <px>           Initial top-left position\n"
-              << "  --w <px> --h <px>           Initial size\n"
+              << "  --w <px> --h <px>           Initial window width/height (each optional)\n"
               << std::endl;
 }

@@ -25,7 +25,11 @@ struct YarpViewOptions {
     int winH = 0;
 
     // internal derived
-    bool explicitGeometry = false;
+    bool explicitGeometry = false; // retained for backward compatibility (true if both w and h specified)
+    bool hasX = false;
+    bool hasY = false;
+    bool hasW = false;
+    bool hasH = false;
 };
 
 class OptionsParser {
