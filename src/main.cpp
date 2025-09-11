@@ -15,6 +15,10 @@ int main(int argc, char **argv) {
 
     yarp::os::ResourceFinder rf;
     auto options = OptionsParser::parse(argc, argv, rf);
+    if (options.helpRequested) {
+        OptionsParser::printHelp();
+        return EXIT_SUCCESS;
+    }
 
     MainWindow w(options);
     w.show();

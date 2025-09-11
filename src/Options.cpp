@@ -15,6 +15,12 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
 
     YarpViewOptions opt;
 
+    // Detect help early (ResourceFinder strips leading dashes when checking)
+    if (rf.check("help") || rf.check("h")) {
+        opt.helpRequested = true;
+        return opt; // no need to parse further
+    }
+
     opt.windowTitle = rf.check("title", yarp::os::Value("yarpview-qt6")).asString().c_str();
 
     std::string baseName = rf.check("name", yarp::os::Value("/yarpview-qt6")).asString();
@@ -50,19 +56,35 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
 }
 
 void OptionsParser::printHelp() {
-    std::cout << "yarpview-qt6 options:\n"
-              << "  --name <basename>           Base name (default /yarpview-qt6)\n"
-              << "  --title <title>             Window title\n"
-              << "  --p <ms> / --refresh <ms>   Refresh period ms (default 30)\n"
-              << "  --autosize                  Auto-resize to incoming image\n"
-              << "  --synch                     Synchronous display (no timer)\n"
-              << "  --leftClick                 Enable left-click output port (<basename>/left:click)\n"
-              << "  --rightClick                Enable right-click output port (<basename>/right:click)\n"
-              << "  --compact                   Compact UI mode\n"
-              << "  --minimal                   Minimal UI mode\n"
-              << "  --keep-above                Keep window above others\n"
-              << "  --saveoptions               Save options file on exit\n"
-              << "  --x <px> --y <px>           Initial top-left position\n"
-              << "  --w <px> --h <px>           Initial window width/height (each optional)\n"
-              << std::endl;
+    auto out = &std::cout;
+    *out << "Usage: yarpview-qt6 [options]" << std::endl;
+    *out << "\nOptions:" << std::endl;
+    struct Item { const char* opt; const char* desc; };
+    const Item items[] = {
+        {"--help",                "Show this help and exit"},
+        {"--name <basename>",    "Base name (default /yarpview-qt6)"},
+        {"--title <title>",      "Window title"},
+        {"--leftClick",          "Enable left-click output port (<basename>/left:click)"},
+        {"--rightClick",         "Enable right-click output port (<basename>/right:click)"},
+        {"--autosize",           "Auto-resize window client area to image size"},
+        {"--synch",              "Synchronous display (update only on new image)"},
+        {"--p <ms>",             "Refresh period ms (alias: --refresh)"},
+        {"--refresh <ms>",       "Same as --p <ms> (default 30)"},
+        {"--compact",            "Hide menu and status bar"},
+        {"--minimal",            "Hide chrome (frameless) and UI elements"},
+        {"--keep-above",         "Start with window always on top"},
+        {"--x <px>",             "Initial X position"},
+        {"--y <px>",             "Initial Y position"},
+        {"--w <px>",             "Initial window width"},
+        {"--h <px>",             "Initial window height"},
+        {"--saveoptions",        "Save options file on exit (not yet implemented)"}
+    };
+    size_t pad = 0; for (auto &i: items) { pad = std::max(pad, strlen(i.opt)); }
+    for (auto &i: items) {
+        *out << "  " << i.opt;
+        size_t len = strlen(i.opt);
+        if (len < pad) *out << std::string(pad - len, ' ');
+        *out << "  " << i.desc << '\n';
+    }
+    *out << std::endl;
 }

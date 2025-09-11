@@ -30,6 +30,7 @@ struct YarpViewOptions {
     bool hasY = false;
     bool hasW = false;
     bool hasH = false;
+    bool helpRequested = false; // set when --help/-h specified
 };
 
 class OptionsParser {
