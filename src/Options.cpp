@@ -15,10 +15,10 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
 
     YarpViewOptions opt;
 
-    // Detect help early (ResourceFinder strips leading dashes when checking)
-    if (rf.check("help") || rf.check("h")) {
+    // Help only with --help (no -h shortcut)
+    if (rf.check("help")) {
         opt.helpRequested = true;
-        return opt; // no need to parse further
+        return opt;
     }
 
     opt.windowTitle = rf.check("title", yarp::os::Value("yarpview-qt6")).asString().c_str();
@@ -46,10 +46,12 @@ YarpViewOptions OptionsParser::parse(int &argc, char **argv, yarp::os::ResourceF
     if (rf.check("p")) opt.refreshMs = rf.find("p").asInt32();
     if (rf.check("refresh")) opt.refreshMs = rf.find("refresh").asInt32();
 
-    if (rf.check("x")) { opt.winX = rf.find("x").asInt32(); opt.hasX = true; }
-    if (rf.check("y")) { opt.winY = rf.find("y").asInt32(); opt.hasY = true; }
+    // Width synonyms
+    if (rf.check("width")) { opt.winW = rf.find("width").asInt32(); opt.hasW = true; }
     if (rf.check("w")) { opt.winW = rf.find("w").asInt32(); opt.hasW = true; }
-    if (rf.check("h")) { opt.winH = rf.find("h").asInt32(); opt.hasH = true; }
+    // Height synonyms
+    if (rf.check("height")) { opt.winH = rf.find("height").asInt32(); opt.hasH = true; }
+    if (rf.check("h") && rf.find("h").isInt32()) { opt.winH = rf.find("h").asInt32(); opt.hasH = true; }
     opt.explicitGeometry = (opt.hasW && opt.hasH);
 
     return opt;
@@ -73,10 +75,10 @@ void OptionsParser::printHelp() {
         {"--compact",            "Hide menu and status bar"},
         {"--minimal",            "Hide chrome (frameless) and UI elements"},
         {"--keep-above",         "Start with window always on top"},
-        {"--x <px>",             "Initial X position"},
-        {"--y <px>",             "Initial Y position"},
-        {"--w <px>",             "Initial window width"},
-        {"--h <px>",             "Initial window height"},
+    {"--w <px>",             "Initial window width (alias: --width)"},
+    {"--width <px>",         "Same as --w"},
+    {"--h <px>",             "Initial window height (alias: --height)"},
+    {"--height <px>",        "Same as --h"},
         {"--saveoptions",        "Save options file on exit (not yet implemented)"}
     };
     size_t pad = 0; for (auto &i: items) { pad = std::max(pad, strlen(i.opt)); }

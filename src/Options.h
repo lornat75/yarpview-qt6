@@ -19,15 +19,11 @@ struct YarpViewOptions {
     bool keepAbove = false;
     bool saveOptions = false; // --saveoptions
     int refreshMs = 30; // polling/refresh period
-    int winX = -1;
-    int winY = -1;
     int winW = 0;
     int winH = 0;
 
     // internal derived
     bool explicitGeometry = false; // retained for backward compatibility (true if both w and h specified)
-    bool hasX = false;
-    bool hasY = false;
     bool hasW = false;
     bool hasH = false;
     bool helpRequested = false; // set when --help/-h specified
