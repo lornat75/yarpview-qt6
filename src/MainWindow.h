@@ -97,7 +97,6 @@ private:
     bool aspectAdjusting{false};
     double currentImageAspect{0.0};
     bool aspectResizeGuard{false};
-    bool initialPosApplied{false};
 protected:
     void resizeEvent(QResizeEvent *e) override;
     void keyPressEvent(QKeyEvent *e) override;
